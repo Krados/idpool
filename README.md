@@ -75,6 +75,7 @@ $ docker network rm taipei
 ## 水平擴展測試
 
 測試方式:使用 nginx 當作 load balancer, 並啟動 3 個 idpool container 當作 upstream
+![scale_id_pool.png](https://github.com/Krados/idpool/blob/master/scale_id_pool.png)
 
 ### 啟動 3 個 idpool container
 
