@@ -72,3 +72,59 @@ $ curl -X POST http://localhost:8087/api/v1/newID
 $ docker rm -f mysql idpool1
 $ docker network rm taipei
 ````
+## 水平擴展測試
+
+測試方式:使用 nginx 當作 load balancer, 並啟動 3 個 idpool container 當作 upstream
+
+### 啟動 3 個 idpool container
+
+```
+$ docker run -itd --name idpool1 --network taipei idpool
+$ docker run -itd --name idpool2 --network taipei idpool
+$ docker run -itd --name idpool3 --network taipei idpool
+```
+
+### 啟動 nginx container
+
+```
+# 新增一個我們需要的 default.conf
+$ echo 'upstream myapp {
+    server idpool1:8080;
+    server idpool2:8080;
+    server idpool3:8080;
+}
+
+server {
+    listen       80;
+    listen  [::]:80;
+    server_name  localhost;
+    location / {
+        proxy_pass http://myapp;
+    }
+    error_page   500 502 503 504  /50x.html;
+    location = /50x.html {
+        root   /usr/share/nginx/html;
+    }
+}
+' >> default.conf
+
+# 啟動 nginx 並使用 default.conf
+$ docker run --name nginx -v "/$PWD/default.conf":/etc/nginx/conf.d/default.conf --network taipei -d -p 8090:80 nginx
+```
+
+### 使用 curl 測試
+
+```
+$ curl --location --request POST 'localhost:8090/api/v1/newID'
+{"id":21016,"status":200}
+$ curl --location --request POST 'localhost:8090/api/v1/newID'
+{"id":22012,"status":200}
+$ curl --location --request POST 'localhost:8090/api/v1/newID'
+{"id":23012,"status":200}
+```
+
+### 清理環境
+
+```
+$ docker rm -f idpool1 idpool2 idpool3 nginx
+```
