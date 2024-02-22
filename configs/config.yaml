@@ -1,6 +1,6 @@
 server:
   http:
-    addr: 0.0.0.0:8087
+    addr: 0.0.0.0:8080
 data:
   mysql:
     dsn: root:passwd@tcp(mysql:3306)/idpool?charset=utf8mb4&parseTime=True&loc=Local
