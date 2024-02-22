@@ -2,31 +2,31 @@
 idpool 是一個 ID 產生器, 而且可以很輕易的水平擴展
 
 ## 何時會使用到此專案
-大部分情境下可以直接使用 [snowflake](https://github.com/bwmarrin/snowflake) 或者是 [sonyflake](https://github.com/sony/sonyflake) 來做全局 ID 產生器, 但者兩者皆是以時間為驅動, 就代表著有絕大多數的 ID 不會被使用到.
+- 大部分情境下可以直接使用 [snowflake](https://github.com/bwmarrin/snowflake) 或者是 [sonyflake](https://github.com/sony/sonyflake) 來做全局 ID 產生器, 但者兩者皆是以時間為驅動, 就代表著有絕大多數的 ID 不會被使用到.
 
-如果想要有效的使用到所有 ID 時可以嘗試使用此專案.
+- 如果想要有效的使用到所有 ID 時可以嘗試使用此專案.
 
 ## 實作想法
 
-server 為冷啟動, 即每次啟動時並不會直接從 id pool 中取得 1000 筆資料, 而是當 server 接收到 take id 的請求才取從 id pool 取得 1000 筆資料並寫入到 queue 內.
+- server 為冷啟動, 即每次啟動時並不會直接從 id pool 中取得 1000 筆資料, 而是當 server 接收到 take id 的請求才取從 id pool 取得 1000 筆資料並寫入到 queue 內.
 
-如果 queue 裡面沒有可用 id, 就會再一次去 id pool 中取得 1000 筆資料並寫入到 queue 內.
+- 如果 queue 裡面沒有可用 id, 就會再一次去 id pool 中取得 1000 筆資料並寫入到 queue 內.
 
-讀取和寫入的比例為 1:999
+- 讀取和寫入的比例為 1:999
 
-queue 是使用 golang 的 channel 來實現.
+- queue 是使用 golang 的 channel 來實現.
 
-使用 mysql 當作紀錄可用 id pool 紀錄的地方.
+- 使用 mysql 當作紀錄可用 id pool 紀錄的地方.
 
-不需要使用到 cache, 因為每次請求皆會返回不同的 ID.
+- 不需要使用到 cache, 因為每次請求皆會返回不同的 ID.
 
-server 為 stateless 所以水平擴展方便.
+- server 為 stateless 所以水平擴展方便.
 
 ## 可能的問題
 
-server 重啟時即便 queue 裡面還有可用的 id 皆會直接丟棄, 最慘的情況會直接丟棄 999 筆 id
+- server 重啟時即便 queue 裡面還有可用的 id 皆會直接丟棄, 最慘的情況會直接丟棄 999 筆 id
 
-mysql 為 server 取得 id 的地方, 以目前專案的實作方式會有單點故障(single point of failure)的問題.
+- mysql 為 server 取得 id 的地方, 以目前專案的實作方式會有單點故障(single point of failure)的問題.
 
 ## 取得 ID 的流程
 ![takeid_flow.drawio.png](https://github.com/Krados/idpool/blob/master/takeid_flow.drawio.png)
