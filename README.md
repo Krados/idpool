@@ -1,6 +1,9 @@
 # idpool
 idpool 是一個 ID 產生器, 而且可以很輕易的水平擴展
 
+## 取得 ID 的流程
+![takeid_flow.drawio.png](https://github.com/Krados/idpool/blob/master/takeid_flow.drawio.png)
+
 ## 使用 docker 來建立一個本地開發環境
 
 ### 建立一個自定義網路
